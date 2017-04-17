@@ -16,13 +16,14 @@ public class KMeans {
 
     private final int k = 2;
 
-    public void runKMeans(List<Student> studentList){
+    public void runKMeans(List<Student> studentList) {
         createClusters(studentList);
         KMeanstest(studentList);
     }
 
     List<KMeansCluster> clusterList = new ArrayList<>();
 
+    //creating a number of clusters k and assigning random students to it
     public void createClusters(List<Student> studentList) {
         Random randomizer = new Random();
         for (int i = 0; i < k; i++) {
@@ -34,10 +35,11 @@ public class KMeans {
         }
     }
 
+
     public void KMeanstest(List<Student> studentList) {
         boolean hasChanges = true;
         while (hasChanges) {
-            for (KMeansCluster cluster : clusterList){
+            for (KMeansCluster cluster : clusterList) {
                 cluster.ClusterMembers.clear();
             }
             for (Student student : studentList) {

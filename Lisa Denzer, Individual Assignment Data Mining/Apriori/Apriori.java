@@ -44,10 +44,7 @@ public class Apriori {
             itemsetCount.put(itemset, relativeSupport);
         }
 
-        //Calculating minimum confidence
-        int minimumConfidence;
-        Hashtable<ItemSet, Integer> itemsetConfidence = new Hashtable<>();
-        //First item of every
+        //Calculating confidence
         List<Integer> firstitem = new LinkedList<>();
 
         for (ItemSet itemset : itemsetCount.keySet()) {
@@ -55,32 +52,39 @@ public class Apriori {
                 int firstItem = itemset.set[i];
                 firstitem.add(firstItem);
                 ItemSet firstitemset = new ItemSet(new int[]{firstItem});
-                if (finalHashtable.containsKey(firstitemset)){
-                double supportCount = finalHashtable.get(firstitemset);
-                double supportCount2 = finalHashtable.get(itemset);
-                double confidence = supportCount2 / supportCount * 100;
+                if (finalHashtable.containsKey(firstitemset)) {
+                    double supportCount = finalHashtable.get(firstitemset);
+                    double supportCount2 = finalHashtable.get(itemset);
+                    double confidence = supportCount2 / supportCount * 100;
 
-                List<String> itemsetLabeled = itemsetToGameList(itemset);
-                List<String> firstitemsetLabeled = itemsetToGameList(firstitemset);
-                DecimalFormat df = new DecimalFormat("####0.00");
-                if (confidence != 100.00 && confidence > 60.00){
-                    System.out.println("For " + firstitemsetLabeled.toString() + " there is a confidence of " + df.format(confidence) + "% that the last game mentioned in this itemset was also played " + itemsetLabeled.toString());
-                }}
+                    List<String> itemsetLabeled = itemsetToGameList(itemset);
+                    List<String> firstitemsetLabeled = itemsetToGameList(firstitemset);
+
+                    DecimalFormat df = new DecimalFormat("####0.00");
+                    //Don't print out frequent itemsets with a confidence of 100% or of less than 60%
+                    if (confidence != 100.00 && confidence > 60.00) {
+                        System.out.println("For " + firstitemsetLabeled.toString() + " there is a confidence of " + df.format(confidence) + "% that the other game mentioned in this itemset was also played " + itemsetLabeled.toString());
+                    }
+                }
             }
         }
         return null;
     }
 
+    //Transforming the number-representation back to string-representation
     private static List<String> itemsetToGameList(ItemSet itemSet) {
         List<String> retval = new LinkedList<>();
-        for(int item : itemSet.set) {
+        for (int item : itemSet.set) {
             retval.add(PrettyMaker.gameStringEnumerator.getName(item));
         }
         return retval;
     }
 
+    //Generating frequent-1-itemsets
     private static Hashtable<ItemSet, Integer> generateFrequentItemSetsLevel1(int[][] transactions,
                                                                               int supportThreshold) {
+
+        //Generating candidate-1-itemset
         Hashtable<ItemSet, Integer> candidateItemSetC1 = new Hashtable<>();
         //For every row in the dataset until the end of the dataset
         for (int i = 0; i < transactions.length; i++) {
@@ -99,37 +103,26 @@ public class Apriori {
             }
         }
 
-        /*//Print out Apriori.ItemSet-Overview to check if it worked
-        for (Map.Entry<Apriori.ItemSet, Integer> entry : candidateItemSetC1.entrySet()) {
-            System.out.println(entry.getKey() + "," + entry.getValue());
-        }
-        System.out.println(candidateItemSetC1.size());*/
-
         //Checking which entries in C1 survive the support-threshold
         Hashtable<ItemSet, Integer> frequentItemSetL1 = new Hashtable<>();
         for (Map.Entry<ItemSet, Integer> entry : candidateItemSetC1.entrySet()) {
             if (entry.getValue() >= supportThreshold) {
                 frequentItemSetL1.put(entry.getKey(), entry.getValue());
             }
-
-            /*//Print out frequent Itemset to check if it worked
-            for (Map.Entry<Apriori.ItemSet, Integer> entry1 : frequentItemSetL1.entrySet()) {
-                System.out.println(entry1.getKey() + "," + entry1.getValue());
-            }
-            System.out.println(frequentItemSetL1.size());*/
         }
         return frequentItemSetL1;
     }
 
+    //Generating frequent-k-itemsets
     private static Hashtable<ItemSet, Integer> generateFrequentItemSet(int supportThreshold, Hashtable<
             ItemSet, Integer> frequentItemSetL1, int[][] transactions) {
 
-
+        //Generating candidate-2-itemsets by joining L1 with itself
         List<ItemSet> candidateItemSetC2 = new ArrayList<>();
         Hashtable<ItemSet, Integer> frequentItemSetL2 = new Hashtable<>();
-        // For each itemset I1 and I2 of level k-1
         for (ItemSet is : frequentItemSetL1.keySet()) {
             for (ItemSet is2 : frequentItemSetL1.keySet()) {
+                //Only continue if both itemsets are the same
                 if (is.equals(is2)) {
                     continue;
                 }
@@ -151,6 +144,7 @@ public class Apriori {
                 for (int i = 0; i < is.set.length; i++) {
                     join[i] = is.set[i];
                 }
+
                 join[join.length - 1] = is2.set[is2.set.length - 1];
                 Arrays.sort(join);
                 ItemSet joinedSet = new ItemSet(join);
@@ -158,13 +152,10 @@ public class Apriori {
                 if (!candidateItemSetC2.contains(joinedSet)) {
                     candidateItemSetC2.add(joinedSet);
                 }
-
-
-                for (int p = 0; p < candidateItemSetC2.size(); p++) {
-                    //System.out.print(candidateItemSetC2.get(p));
-                }
             }
 
+            /*For every itemset in C2, count the support, check if it is above the threshold,
+            and if so,save it in the frequent-2-itemset*/
             for (ItemSet itemset : candidateItemSetC2) {
                 int count = countSupport(itemset.set, transactions);
                 if (count >= supportThreshold) {
@@ -176,6 +167,7 @@ public class Apriori {
     }
 
 
+    //Method to calculate support
     private static int countSupport(int[] itemSet, int[][] transactions) {
 
         int count = 0;

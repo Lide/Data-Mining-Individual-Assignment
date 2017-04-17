@@ -26,6 +26,7 @@ public class PrettyMaker {
         return data;
     }
 
+    //Replacing commas with dots for shoesize
     public static String[][] replaceCommaWithDot(String[][] data) {
         for (String[] line : data) {
             line[3] = line[3].replaceAll(",", ".");
@@ -33,6 +34,7 @@ public class PrettyMaker {
         return data;
     }
 
+    //Parse age, but only if it is between 15 and 17, otherwise assign invalid-number (0)
     public static double parseAge(String ageLine) {
         double age = Student.INVALID_NUMBER;
         try {
@@ -46,6 +48,7 @@ public class PrettyMaker {
         return age;
     }
 
+    //Parse gender, but only if it is "m" or "f"; if not, replace with "m";
     public static int parseGender(String genderLine) {
         String gender = genderLine;
         int newGender = 0;
@@ -57,6 +60,7 @@ public class PrettyMaker {
                 if (gender != "m" && gender != "f") {
                     gender = "m";
                 }
+                //Normalizing to m = 1 and f = 0;
                 if (gender == "m") {
                     newGender = 1;
                 }
@@ -70,8 +74,10 @@ public class PrettyMaker {
         return newGender;
     }
 
+    //Parsing shoesize, but only if it is between 35 and 50; otherwise assign 0.0;
     public static double parseShoesize(String shoesizeLine) {
         double shoeSize = 0.0;
+        //removes non-numerical input
         shoesizeLine = shoesizeLine.replaceAll("[\\D]", "");
         try {
             shoeSize = Double.parseDouble(shoesizeLine);
@@ -86,8 +92,11 @@ public class PrettyMaker {
     }
 
 
+    //Parses the height, removes non-numerical input such as "cm"; only parses if height is between 100 and 230cm,
+    //otherwise replaces with 0;
     public static double parseHeight(String heightLine) {
         int height = 0;
+        //removes non-numerical input such as "cm"
         heightLine = heightLine.replaceAll("[\\D]", "");
         try {
             height = Integer.parseInt(heightLine);
@@ -101,6 +110,8 @@ public class PrettyMaker {
         return height;
     }
 
+    //Removes students that did not enter valid input in age, shoesize and height from the studentlist;
+    //This increases the accuracy when running the algorithms
     public static void removeFishyStudents(List<Student> studentList, double medianAge, double medianShoesize, double medianHeight) {
         List<Student> toRemove = new ArrayList<>();
         for (Student s : studentList) {
@@ -109,21 +120,20 @@ public class PrettyMaker {
             }
         }
         studentList.removeAll(toRemove);
-
-        for (Student s : studentList) {
-            System.out.println(s);
-        }
     }
 
+    //Separate class that turns nominal values into numerical values and the other way around
     public static StringEnumerator gameStringEnumerator = new StringEnumerator();
 
+    //Parses games-answers; splits along semicolons;
     public static int[] parseGame(String gameLine) {
         String playedGames = gameLine;
         String[] gameNames = playedGames.split(";");
 
-
+        //saves game-names as game-numbers in new array;
         int[] gameNumbers = new int[gameNames.length];
         for (int i = 0; i < gameNames.length; i++) {
+            //does not save if the answer is "I have not played any of these games" because we do not need that for apriori
             if (!gameNames[i].equals("I have not played any of these games")) {
                 gameNumbers[i] = gameStringEnumerator.getNumber(gameNames[i]);
             }
@@ -133,6 +143,7 @@ public class PrettyMaker {
     }
 
 
+    //returns the games-array
     public static int[][] getGamesArray(String[][] data, List<Student> studentList) {
         int[][] GAMES = new int[data.length][];
         for (int i = 0; i < studentList.size(); i++) {

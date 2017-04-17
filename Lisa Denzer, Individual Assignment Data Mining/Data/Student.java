@@ -6,6 +6,8 @@ import java.util.*;
  * Created by Lisa Denzer on 06.03.2017.
  */
 public class Student implements Comparable<Student> {
+    //in the data-cleaning we replace missing values with 0;
+    // this variable is used to check for those entries so that they can be processed; e.g. in age
     public static double INVALID_NUMBER = 0;
 
     public double age;
@@ -24,6 +26,7 @@ public class Student implements Comparable<Student> {
                 '}';
     }
 
+    //Calculates the sum of a list of doubles
     public static double sum(List<Double> a) {
         double sum = 0;
         for (int i = 0; i < a.size(); i++) {
@@ -32,6 +35,7 @@ public class Student implements Comparable<Student> {
         return sum;
     }
 
+    //Calculates the mean of a list of doubles
     public static double mean(List<Double> a) {
         double sum = sum(a);
         double mean = 0;
@@ -43,6 +47,7 @@ public class Student implements Comparable<Student> {
         return mean;
     }
 
+    //Calculates the median of a list of doubles
     public static double median(List<Double> a) {
         int middle = a.size() / 2;
         if (a.size() % 2 == 1) {
@@ -52,6 +57,7 @@ public class Student implements Comparable<Student> {
         }
     }
 
+    //calculates standardDeviation
     public static double stanDev(List<Double> a) {
         double deviationSum = 0;
         double mean = mean(a);
